@@ -6,19 +6,25 @@
 File dataFile;
 char file_name[20] = "/data1.csv";
 unsigned long set_pointer = 0;
-bool scape = false;
+bool read = false;
 int i = 0;
+bool available = true;
 
-void readFile(){
+void readFile()
+{
     dataFile = SD.open(file_name, FILE_READ);
-    if (dataFile){
-        if (i > 0){
+
+    if (dataFile) 
+    {
+        if(read) 
+        {
             dataFile.seek(set_pointer); // Para setar a posição (ponteiro) de leitura do arquivo
             Serial.println("Ok");
         }
         String linha;
 
-        if(dataFile.available()){
+        if (dataFile.available()) 
+        {
             linha = dataFile.readStringUntil('\n');
 
             set_pointer = dataFile.position(); // Guardar a posição (ponteiro) de leitura do arquivo
@@ -26,30 +32,22 @@ void readFile(){
             // Separar os valores usando a vírgula como delimitador
             int posVirgula1 = linha.indexOf(',');
             int posVirgula2 = linha.indexOf(',', posVirgula1 + 1);
+            int posVirgula3 = linha.lastIndexOf(',');
 
             // Extrair os valores de cada sensor
             String rpm = linha.substring(0, posVirgula1);
             String speed = linha.substring(posVirgula1 + 1, posVirgula2);
-            String timestamp = linha.substring(posVirgula2 + 1);
+            String timestamp = linha.substring(posVirgula2 + 1, posVirgula3);
 
-            Serial.print(rpm);
-            Serial.print(",");
-            Serial.print(speed);
-            Serial.print(",");
-            Serial.println(timestamp);
+            Serial.printf("rpm=%d , speed=%d, timestamp=%d\n", rpm, speed, timestamp);
 
+            read = true;
         }
-        else{
-            scape = true;
+        else {
+            available=false;
         }
-        
-        if (i == 0){
-            i += 1;
-        }
-    }
-    else
-    {
-        Serial.println("Failed to open file for reading");
+    } else {
+        Serial.println("Failed to open file for reading or the file not exist");
         return;
     }
 }
@@ -67,7 +65,7 @@ void setup(){
     Serial.printf("Reading file: %s\n", file_name);
 
     while(1){
-        if(scape){
+        if(!available){
             dataFile.close();
             break;
         }
