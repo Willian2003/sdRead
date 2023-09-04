@@ -6,7 +6,7 @@
 File dataFile;
 char file_name[20] = "/data1.csv";
 unsigned long set_pointer = 0;
-bool read = false;
+bool ler = false;
 int i = 0;
 bool available = true;
 
@@ -16,10 +16,9 @@ void readFile()
 
     if (dataFile) 
     {
-        if(read) 
+        if(ler) 
         {
             dataFile.seek(set_pointer); // Para setar a posição (ponteiro) de leitura do arquivo
-            Serial.println("Ok");
         }
         String linha;
 
@@ -39,9 +38,13 @@ void readFile()
             String speed = linha.substring(posVirgula1 + 1, posVirgula2);
             String timestamp = linha.substring(posVirgula2 + 1, posVirgula3);
 
-            Serial.printf("rpm=%d , speed=%d, timestamp=%d\n", rpm, speed, timestamp);
+            uint8_t rpm_value = String(rpm).toInt();
+            uint8_t speed_value = String(speed).toInt();
+            uint64_t timestamp_value = String(timestamp).toInt();
 
-            read = true;
+            Serial.printf("rpm=%d, speed=%d, timestamp=%d\n", rpm_value, speed_value, timestamp_value);
+
+            ler = true;
         }
         else {
             available=false;
